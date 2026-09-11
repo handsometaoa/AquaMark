@@ -80,7 +80,15 @@ function renderCurrent() {
 function renderList() {
   const list = $('#ruleList');
   const empty = $('#emptyState');
-  const rules = [...state.settings.rules].sort((a, b) => b.createdAt - a.createdAt);
+  const { currentHost, settings } = state;
+  const isMatch = (r: WatermarkRule) => !!currentHost && domainMatches(currentHost, r.domain);
+  // 命中当前域名的规则置顶，同组内按新旧排序
+  const rules = [...settings.rules].sort((a, b) => {
+    const ma = isMatch(a) ? 1 : 0;
+    const mb = isMatch(b) ? 1 : 0;
+    if (ma !== mb) return mb - ma;
+    return b.createdAt - a.createdAt;
+  });
   empty.classList.toggle('hidden', rules.length > 0);
   list.innerHTML = rules
     .map((r, i) => {
