@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+  release:
+    types: [published] # 网页上发布 Release 时也自动构建并挂载安装包
   workflow_dispatch: # 允许在 Actions 页面手动触发
 
 permissions:
@@ -42,8 +44,9 @@ jobs:
           path: dist/*.zip
           if-no-files-found: error
 
-      - name: 发布 Release（仅 v* 标签触发）
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: 发布 Release（tag 推送或网页发布 Release 时）
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
+          body: 下载下方 zip 并解压，通过浏览器「加载已解压的扩展程序」选择解压后的文件夹安装。
           files: dist/*.zip
