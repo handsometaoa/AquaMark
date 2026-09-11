@@ -48,23 +48,28 @@
 
 ## 📥 安装
 
-### Chrome 安装
+### 方式一：下载安装包（推荐，无需 Node 环境）
 
-1. 打开 Chrome，地址栏输入 `chrome://extensions`
-2. 打开右上角「**开发者模式**」开关
-3. 点击左上角「**加载已解压的扩展程序**」
-4. 选择本项目的 `.output/chrome-mv3` 文件夹
-5. 工具栏出现蓝色水滴图标（点📌可固定），打开任意网站即可使用
+1. 打开仓库的 [**Releases** 页面](https://github.com/handsometaoa/AquaMark/releases)
+2. 下载最新版本的 `aquamark-domain-watermark-x.x.x-chrome.zip`
+3. 将 zip **解压**到一个长期保留的目录（如 `D:\Extensions\AquaMark`）
+4. 打开 Chrome / Edge，进入扩展管理页（`chrome://extensions` 或 `edge://extensions`）
+5. 打开「**开发者模式**」开关
+6. 点「**加载已解压的扩展程序**」→ 选择**解压出来的文件夹**（不是 zip 本身）
+7. 工具栏出现蓝色水滴图标，固定后即可使用
 
-### Edge 安装
+> ⚠️ 浏览器会直接引用解压后的文件夹，之后**不要删除或移动**它；若扩展提示失效，重新指向一次即可。
 
-1. 打开 Edge，地址栏输入 `edge://extensions`
-2. 打开左侧「**开发人员模式**」开关
-3. 点击「**加载解压缩的扩展**」
-4. 选择本项目的 `.output/chrome-mv3` 文件夹
-5. 固定到工具栏即可使用
+### 方式二：从源码构建（开发者）
 
-> 💡 也可以把 `.output/aquamark-1.0.0-chrome.zip` 发给同事，解压后按上述步骤加载。
+```bash
+git clone https://github.com/handsometaoa/AquaMark.git
+cd AquaMark
+npm install
+npm run build
+```
+
+构建产物输出到 `.output/chrome-mv3`，然后同样按方式一的第 4–6 步，选择该文件夹加载。改完代码 `npm run build` 后在扩展页点 ↻ 即可看到效果。
 
 ## 🚀 快速上手
 
