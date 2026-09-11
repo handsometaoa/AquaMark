@@ -1,0 +1,31 @@
+{
+  "name": "aquamark-domain-watermark",
+  "description": "根据域名动态为网页添加水印：自定义内容、颜色、密度与深浅",
+  "private": true,
+  "version": "1.1.0",
+  "author": {
+    "name": "handsometaoa",
+    "url": "https://github.com/handsometaoa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/handsometaoa/AquaMark.git"
+  },
+  "homepage": "https://github.com/handsometaoa/AquaMark#readme",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "zip": "wxt build && wxt zip",
+    "compile": "tsc --noEmit",
+    "icons": "node scripts/gen-icons.mjs",
+    "preview": "node scripts/preview.mjs",
+    "e2e": "node scripts/e2e-test.mjs",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "wxt": "^0.21.4"
+  }
+}
