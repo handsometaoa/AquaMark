@@ -2,7 +2,7 @@ import { saveSettings } from '../../lib/settings';
 import { normalizeDomain } from '../../lib/rules';
 import { DEFAULT_TEXT, type WatermarkRule } from '../../lib/types';
 import { buildTile, isLightColor } from '../../lib/watermark';
-import { state } from './store';
+import { state, tr } from './store';
 import { $, paintSlider, toast } from './ui';
 import { renderAll } from './render';
 
@@ -73,7 +73,7 @@ function renderSwatches(color: string) {
 export function openSheet(rule: WatermarkRule, isNew: boolean) {
   state.editing = { ...rule };
   state.editingNew = isNew;
-  $('#sheetTitle').textContent = isNew ? '添加水印规则' : '编辑水印规则';
+  $('#sheetTitle').textContent = isNew ? tr('sheetAdd') : tr('sheetEdit');
   ($('#f-domain') as HTMLInputElement).value = rule.domain;
   ($('#f-text') as HTMLInputElement).value = rule.text === DEFAULT_TEXT ? '' : rule.text;
   ($('#f-text') as HTMLInputElement).placeholder = DEFAULT_TEXT;
@@ -98,11 +98,11 @@ export async function saveSheet() {
   const draft = readRuleFromFields();
   const domain = normalizeDomain(draft.domain);
   if (!domain || !domain.includes('.')) {
-    toast('请输入有效域名，如 example.com');
+    toast(tr('invalidDomain'));
     return;
   }
   if (state.settings.rules.some((r) => r.id !== state.editing!.id && normalizeDomain(r.domain) === domain)) {
-    toast('该域名已存在');
+    toast(tr('dupDomain'));
     return;
   }
   const rule = { ...draft, domain };
@@ -112,5 +112,5 @@ export async function saveSheet() {
   await saveSettings(state.settings);
   closeSheet();
   renderAll();
-  toast('已保存 ✓');
+  toast(tr('saved'));
 }

@@ -1,7 +1,7 @@
 import { saveSettings } from '../../lib/settings';
 import { normalizeDomain } from '../../lib/rules';
 import { DEFAULT_COLOR, DEFAULT_TEXT, type WatermarkRule } from '../../lib/types';
-import { state } from './store';
+import { state, tr, trf } from './store';
 import { $, toast } from './ui';
 import { renderAll } from './render';
 
@@ -47,7 +47,7 @@ export function bindImportExport() {
     state.settings.lastExportAt = Date.now();
     saveSettings(state.settings);
     renderAll();
-    toast(`已导出 ${state.settings.rules.length} 条规则`);
+    toast(trf('exported', state.settings.rules.length));
   });
 
   $('#importBtn').addEventListener('click', () => ($('#importFile') as HTMLInputElement).click());
@@ -76,10 +76,10 @@ export function bindImportExport() {
       state.settings.updatedAt = Date.now();
       await saveSettings(state.settings);
       renderAll();
-      if (added) toast(`导入 ${added} 条规则${skipped ? `，跳过 ${skipped} 条` : ''}`);
-      else toast('没有可导入的新规则');
+      if (added) toast(trf('importSummary', added, skipped));
+      else toast(tr('importNone'));
     } catch {
-      toast('导入失败：请选择 AquaMark 导出的 JSON 文件');
+      toast(tr('importFail'));
     } finally {
       input.value = '';
     }

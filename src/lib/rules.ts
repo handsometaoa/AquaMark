@@ -53,5 +53,6 @@ export function normalizeSettings(raw: unknown): Settings {
     rules: rules.map((r) => ({ ...defaultRule(), ...r })),
     updatedAt: Number(src.updatedAt) || 0,
     lastExportAt: Number(src.lastExportAt) || 0,
+    lang: src.lang === 'en' || src.lang === 'zh' ? src.lang : undefined,
   };
 }

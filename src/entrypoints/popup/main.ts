@@ -1,12 +1,12 @@
 import './style.css';
 import { getSettings, getActiveTab, saveSettings } from '../../lib/settings';
 import { defaultRule } from '../../lib/rules';
-import { state } from './store';
+import { state, tr, applyI18n, lang } from './store';
 import { $, paintSlider, toast } from './ui';
-import { initListEvents, renderAll } from './render';
+import { initListEvents, renderAll, renderLanguage } from './render';
 import { closeSheet, openSheet, syncPreview, saveSheet } from './sheet';
-import { bindAbout, closeAbout } from './about';
 import { bindImportExport } from './io';
+import { bindAbout, closeAbout } from './about';
 
 function bind() {
   // 总开关：暂停 / 恢复全部水印
@@ -14,7 +14,7 @@ function bind() {
     state.settings.masterEnabled = !state.settings.masterEnabled;
     await saveSettings(state.settings);
     renderAll();
-    toast(state.settings.masterEnabled ? '已恢复全部水印' : '已暂停全部水印');
+    toast(tr(state.settings.masterEnabled ? 'masterOn' : 'masterOff'));
   });
 
   // 添加规则（预填当前网站域名）
@@ -43,6 +43,13 @@ function bind() {
   initListEvents();
   bindImportExport();
   bindAbout();
+
+  // 语言切换：持久化到设置并即时刷新界面
+  $('#langBtn').addEventListener('click', async () => {
+    state.settings.lang = lang() === 'zh' ? 'en' : 'zh';
+    await saveSettings(state.settings);
+    renderLanguage();
+  });
 }
 
 async function init() {
@@ -53,6 +60,7 @@ async function init() {
     /* ignore */
   }
   state.settings = await getSettings();
+  applyI18n();
   bind();
   renderAll();
 }

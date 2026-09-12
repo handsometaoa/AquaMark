@@ -27,6 +27,8 @@ export interface Settings {
   updatedAt?: number;
   /** 上次导出备份时间 */
   lastExportAt?: number;
+  /** 弹窗界面语言（默认跟随浏览器） */
+  lang?: 'zh' | 'en';
 }
 
 export const DEFAULT_TEXT = '内部资料 · 禁止外传';

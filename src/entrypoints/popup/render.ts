@@ -2,7 +2,7 @@ import { saveSettings } from '../../lib/settings';
 import { defaultRule, domainMatches } from '../../lib/rules';
 import { buildTile, isLightColor } from '../../lib/watermark';
 import type { WatermarkRule } from '../../lib/types';
-import { state } from './store';
+import { state, tr, applyI18n } from './store';
 import { $, esc, toast } from './ui';
 import { openSheet } from './sheet';
 
@@ -18,7 +18,7 @@ function renderCurrent() {
   const card = $('#currentCard');
   const { currentHost, settings } = state;
   if (!currentHost) {
-    card.innerHTML = `<div class="cur-tip">当前标签页不是可识别的网站</div>`;
+    card.innerHTML = `<div class="cur-tip">${tr('notWebPage')}</div>`;
     return;
   }
   const letter = currentHost.replace(/^www\./, '')[0]?.toUpperCase() ?? '?';
@@ -28,7 +28,7 @@ function renderCurrent() {
     <div class="cur-head">${favicon}
       <div class="cur-main">
         <div class="cur-host">${esc(currentHost)}</div>
-        <div class="cur-sub">当前网站</div>
+        <div class="cur-sub">${tr('currentSite')}</div>
       </div>${badge}
     </div>`;
 
@@ -39,9 +39,9 @@ function renderCurrent() {
   // 状态 1：未配置 → 空白预览框 + 添加按钮
   if (!rule) {
     card.innerHTML = `
-      ${head(`<span class="badge"><i></i>未配置</span>`)}
-      <div class="cur-preview cur-preview-empty">暂无水印</div>
-      <div class="cur-actions"><button class="btn primary" id="curAdd">为当前网站添加水印</button></div>`;
+      ${head(`<span class="badge"><i></i>${tr('unsetBadge')}</span>`)}
+      <div class="cur-preview cur-preview-empty">${tr('noWatermark')}</div>
+      <div class="cur-actions"><button class="btn primary" id="curAdd">${tr('addForSite')}</button></div>`;
     $('#curAdd').addEventListener('click', () => {
       openSheet({ ...defaultRule(currentHost), domain: currentHost }, true);
     });
@@ -55,25 +55,25 @@ function renderCurrent() {
   // 状态 2：已启用 → 水印生效中 + 编辑
   if (rule.enabled && settings.masterEnabled) {
     card.innerHTML = `
-      ${head(`<span class="badge on"><i></i>水印生效中</span>`)}
+      ${head(`<span class="badge on"><i></i>${tr('activeBadge')}</span>`)}
       ${preview}
-      <div class="cur-actions"><button class="btn" id="curEdit">编辑此站点水印</button></div>`;
+      <div class="cur-actions"><button class="btn" id="curEdit">${tr('editSite')}</button></div>`;
     $('#curEdit').addEventListener('click', () => openSheet(rule, false));
     return;
   }
 
   // 状态 3：规则存在但未启用（或总开关关闭）→ 水印未生效 + 一键启用
   card.innerHTML = `
-    ${head(`<span class="badge off"><i></i>水印未生效</span>`)}
+    ${head(`<span class="badge off"><i></i>${tr('inactiveBadge')}</span>`)}
     ${preview}
-    <div class="cur-actions"><button class="btn success" id="curEnable">启用此站点水印</button></div>`;
+    <div class="cur-actions"><button class="btn success" id="curEnable">${tr('enableSite')}</button></div>`;
   $('#curEnable').addEventListener('click', async () => {
     rule.enabled = true;
     settings.masterEnabled = true;
     settings.updatedAt = Date.now();
     await saveSettings(settings);
     renderAll();
-    toast('水印已启用 ✓');
+    toast(tr('enabledToast'));
   });
 }
 
@@ -97,14 +97,14 @@ function renderList() {
       <div class="rule ${r.enabled ? '' : 'off'}" data-id="${r.id}" style="animation-delay:${0.12 + i * 0.045}s" title="${match ? '匹配当前网站' : ''}">
         <span class="dot" style="background:${esc(r.color)};color:${esc(r.color)}"></span>
         <div class="rule-main">
-          <div class="rule-domain">${esc(r.domain)}${match ? ' <span class="chip" style="color:#8fd6a8;border-color:rgba(48,209,88,.3);background:rgba(48,209,88,.1)">当前</span>' : ''}</div>
+          <div class="rule-domain">${esc(r.domain)}${match ? ` <span class="chip" style="color:#8fd6a8;border-color:rgba(48,209,88,.3);background:rgba(48,209,88,.1)">${tr('current')}</span>` : ''}</div>
           <div class="rule-meta">
             <span class="chip">${esc(r.text)}</span>
-            <span class="chip">密度 ${r.density} · 深浅 ${r.opacity}%</span>
+            <span class="chip">${tr('density')} ${r.density} · ${tr('opacity')} ${r.opacity}%</span>
           </div>
         </div>
-        <button class="switch sm" data-act="toggle" aria-checked="${r.enabled}" aria-label="启用或停用 ${esc(r.domain)}"></button>
-        <button class="icon-btn" data-act="del" aria-label="删除 ${esc(r.domain)}">${TRASH_SVG}</button>
+        <button class="switch sm" data-act="toggle" aria-checked="${r.enabled}" aria-label="${tr('enableSite')} ${esc(r.domain)}"></button>
+        <button class="icon-btn" data-act="del" aria-label="${tr('deleted')} ${esc(r.domain)}">${TRASH_SVG}</button>
       </div>`;
     })
     .join('');
@@ -131,6 +131,13 @@ export function updateExportDot() {
   const dirty =
     state.settings.rules.length > 0 && (state.settings.updatedAt || 0) > (state.settings.lastExportAt || 0);
   $('.dirty-dot').classList.toggle('show', dirty);
+}
+
+/** 语言切换：刷新静态文案 + 重渲染动态区域 */
+export function renderLanguage() {
+  applyI18n();
+  renderCurrent();
+  renderList();
 }
 
 /* ————— 列表行交互 ————— */
@@ -165,7 +172,7 @@ async function removeRule(rule: WatermarkRule, row: HTMLElement) {
     renderCurrent();
     updateListFade();
     updateExportDot();
-    toast('已删除');
+    toast(tr('deleted'));
   }, 300);
 }
 
@@ -189,7 +196,7 @@ export function initListEvents() {
       if (!btn.classList.contains('armed')) {
         document.querySelectorAll<HTMLElement>('.icon-btn.armed').forEach(resetDelBtn);
         btn.classList.add('armed');
-        btn.textContent = '确认删除';
+        btn.textContent = tr('armDelete');
         clearTimeout(deleteTimer);
         deleteTimer = setTimeout(() => resetDelBtn(btn), 2600);
         return;
